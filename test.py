@@ -32,12 +32,13 @@ proj_texture_loc = get_shader_location(model.materials[0].shader, "projTexture")
 #set_shader_value(shader,proj_texture_loc,bytes(1),ShaderUniformDataType.SHADER_UNIFORM_INT)
 #shader.locs[ShaderLocationIndex.SHADER_LOC_VERTEX_TEXCOORD01] = proj_texture_loc
 for i in range(model.materialCount):
+    #Need this to use custom values on the shader
     model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MAP_ALBEDO] = get_shader_location(model.materials[0].shader, "projTexture")
     model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_PROJECTION] = get_shader_location(model.materials[0].shader, "projectionMatrix")
     model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_VIEW] = get_shader_location(model.materials[0].shader, "viewMatrix")
     model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_MODEL] = get_shader_location(model.materials[0].shader, "modelMatrix")
 
-    model.materials[i].maps[MaterialMapIndex.MATERIAL_MAP_ALBEDO].texture = texture
+    model.materials[i].maps[MaterialMapIndex.MATERIAL_MAP_ALBEDO].texture = texture # Set model diffuse texture (IMPORTANT FOR THE SHADER)
 
 
 # for i in range(model.materialCount):
@@ -47,7 +48,7 @@ set_shader_value_texture(shader,proj_texture_loc,texture)
 
 #projector 
 proj_position = [4.0,4.0,4.0]
-proj_target = [0.0,0.0,0.0]
+proj_target = [0.0,1.0,0.0]
 up_vector = [0.0,1.0,0.0]
 
 proj_view = matrix_look_at(proj_position,proj_target,up_vector)
@@ -65,10 +66,11 @@ while not window_should_close():  # Detect window close button or ESC key
 
     begin_mode_3d(camera)
     
-    # Set shader uniforms
-    set_shader_value_matrix(shader, model_loc, matrix_identity())
-    set_shader_value_matrix(shader, view_loc, get_camera_matrix(camera))
-    set_shader_value_matrix(shader, projection_loc, matrix_perspective(deg2rad(45), 800.0/600.0,0.1,100.0))
+    #TODO  Set shader uniforms doesnt work
+   
+    #set_shader_value_matrix(shader, model_loc, matrix_identity())
+    #set_shader_value_matrix(shader, view_loc, get_camera_matrix(camera))
+    #set_shader_value_matrix(shader, projection_loc, matrix_perspective(deg2rad(45), 800.0/600.0,0.1,100.0))
     
     # Draw objects with the shader
     # Use shader

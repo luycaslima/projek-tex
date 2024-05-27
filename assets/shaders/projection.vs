@@ -22,17 +22,17 @@ void main(){
 
     /*
         // this makes sure we don't render the texture also on the back of the object
-        vec3 projectorDirection = normalize(projPosition - vWorldPosition.xyz);
+        vec3 projectorDirection = normalize(projPosition - vWorldPosition.xyz); //world position is just model * vertexPos
         float dotProduct = dot(vNormal, projectorDirection);
         if (dotProduct < 0.0) {
         outColor = vec4(color, 1.0);
         }
     */
-
     //to no project behind
     float w = max(projectorCoords.w,.0);
     //map from [-1,1 ] to [0,1]
     vec2 uv = (projectorCoords.xy/ w) * 0.5 + 0.5;
+    uv.y = -uv.y; // should invert because of opengl (left bottom origin whili raylib is top lef)
     fragTexCoord = uv;
 
     //vTexCoords = projectionMatrixCamera * viewMatrixCamera * modelMatrix * vec4(position,1.0); 
