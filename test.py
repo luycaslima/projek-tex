@@ -34,9 +34,10 @@ proj_texture_loc = get_shader_location(model.materials[0].shader, "projTexture")
 for i in range(model.materialCount):
     #Need this to use custom values on the shader
     model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MAP_ALBEDO] = get_shader_location(model.materials[0].shader, "projTexture")
-    model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_PROJECTION] = get_shader_location(model.materials[0].shader, "projectionMatrix")
-    model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_VIEW] = get_shader_location(model.materials[0].shader, "viewMatrix")
-    model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_MODEL] = get_shader_location(model.materials[0].shader, "modelMatrix")
+    #TODO TO PROJECTO FROM THE CAMERA OF THE USER, NEED TO SETUP THIS
+    #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_PROJECTION] = get_shader_location(model.materials[0].shader, "projectionMatrix")
+    #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_VIEW] = get_shader_location(model.materials[0].shader, "viewMatrix")
+    #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_MODEL] = get_shader_location(model.materials[0].shader, "modelMatrix")
 
     model.materials[i].maps[MaterialMapIndex.MATERIAL_MAP_ALBEDO].texture = texture # Set model diffuse texture (IMPORTANT FOR THE SHADER)
 
@@ -44,15 +45,15 @@ for i in range(model.materialCount):
 # for i in range(model.materialCount):
 #     model.materials[i].shader = shader
 
-set_shader_value_texture(shader,proj_texture_loc,texture)
+#set_shader_value_texture(shader,proj_texture_loc,texture)
 
 #projector 
-proj_position = [4.0,4.0,4.0]
+proj_position = [4.0,4.0,4]
 proj_target = [0.0,1.0,0.0]
 up_vector = [0.0,1.0,0.0]
 
 proj_view = matrix_look_at(proj_position,proj_target,up_vector)
-proj_projection = matrix_perspective(deg2rad(45), 800.0/600.0,0.1,100.0)
+proj_projection = matrix_perspective(deg2rad(10),800.0/600.0,0.1,100.0)
 
 
 # Main game loop
@@ -67,10 +68,9 @@ while not window_should_close():  # Detect window close button or ESC key
     begin_mode_3d(camera)
     
     #TODO  Set shader uniforms doesnt work
-   
-    #set_shader_value_matrix(shader, model_loc, matrix_identity())
-    #set_shader_value_matrix(shader, view_loc, get_camera_matrix(camera))
-    #set_shader_value_matrix(shader, projection_loc, matrix_perspective(deg2rad(45), 800.0/600.0,0.1,100.0))
+    set_shader_value_matrix(model.materials[0].shader, model_loc, matrix_identity())
+    set_shader_value_matrix(model.materials[0].shader, view_loc, proj_view)
+    set_shader_value_matrix(model.materials[0].shader, projection_loc, proj_projection)
     
     # Draw objects with the shader
     # Use shader

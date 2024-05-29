@@ -4,7 +4,7 @@ layout(location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec2 vertexTexCoord;
 
 //uniform mat4 mvp; //model view projection -> default of raylib
-
+uniform mat4 mvp;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
@@ -18,7 +18,7 @@ void main(){
 
     vec4 projectorCoords = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition,1.0);
     fragPosition = vertexPosition;
-    gl_Position = projectorCoords;
+    gl_Position = mvp * vec4(vertexPosition,1.0);
 
     /*
         // this makes sure we don't render the texture also on the back of the object
