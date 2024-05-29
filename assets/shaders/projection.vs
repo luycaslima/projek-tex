@@ -20,14 +20,7 @@ void main(){
     fragPosition = vertexPosition;
     gl_Position = mvp * vec4(vertexPosition,1.0);
 
-    /*
-        // this makes sure we don't render the texture also on the back of the object
-        vec3 projectorDirection = normalize(projPosition - vWorldPosition.xyz); //world position is just model * vertexPos
-        float dotProduct = dot(vNormal, projectorDirection);
-        if (dotProduct < 0.0) {
-        outColor = vec4(color, 1.0);
-        }
-    */
+
     //to no project behind
     float w = max(projectorCoords.w,.0);
     //map from [-1,1 ] to [0,1]

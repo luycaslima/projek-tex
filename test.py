@@ -25,6 +25,7 @@ for i in range(model.materialCount):
 # Get the location of the shader uniforms
 model_loc = get_shader_location(model.materials[0].shader, "modelMatrix")
 view_loc = get_shader_location(model.materials[0].shader, "viewMatrix")
+projector_pos_loc = get_shader_location(model.materials[0].shader, "projPosition")
 projection_loc = get_shader_location(model.materials[0].shader, "projectionMatrix")
 proj_texture_loc = get_shader_location(model.materials[0].shader, "projTexture")
 
@@ -48,12 +49,12 @@ for i in range(model.materialCount):
 #set_shader_value_texture(shader,proj_texture_loc,texture)
 
 #projector 
-proj_position = [4.0,4.0,4]
+proj_position = [2.0,3.0,2]
 proj_target = [0.0,1.0,0.0]
 up_vector = [0.0,1.0,0.0]
 
 proj_view = matrix_look_at(proj_position,proj_target,up_vector)
-proj_projection = matrix_perspective(deg2rad(10),800.0/600.0,0.1,100.0)
+proj_projection = matrix_perspective(deg2rad(10),256.0/256.0,0.1,100.0) #TODO should it be the size of the image? #the fovy define how big
 
 
 # Main game loop
@@ -67,7 +68,8 @@ while not window_should_close():  # Detect window close button or ESC key
 
     begin_mode_3d(camera)
     
-    #TODO  Set shader uniforms doesnt work
+
+    #set_shader_value_v(model.materials[0].shader,projector_pos_loc,proj_projection,ShaderUniformDataType.SHADER_UNIFORM_VEC3,0)
     set_shader_value_matrix(model.materials[0].shader, model_loc, matrix_identity())
     set_shader_value_matrix(model.materials[0].shader, view_loc, proj_view)
     set_shader_value_matrix(model.materials[0].shader, projection_loc, proj_projection)
@@ -75,7 +77,7 @@ while not window_should_close():  # Detect window close button or ESC key
     # Draw objects with the shader
     # Use shader
     #[begin_shader_mode(shader)
-
+    draw_cube_wires(proj_position,.2,.2,.2,RED)
     draw_model(model,[0,1,0],1,WHITE)
     #end_shader_mode()
     #draw_cube_wires(Vector3(0.0, 1.0, 0.0), 2.0, 2.0, 2.0, BLACK)
