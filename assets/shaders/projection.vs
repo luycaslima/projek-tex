@@ -8,6 +8,7 @@ uniform mat4 mvp; //model view projection -> default of raylib
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+
 uniform vec3 projPosition;
 
 out vec2 fragTexCoord;
@@ -18,8 +19,8 @@ out vec3 projDirection;
 
 void main(){
     vec4 worldPosition =  modelMatrix * vec4(vertexPosition,1.0);
-    projDirection = normalize(projPosition - worldPosition.xyz);
-    
+    projDirection = normalize(projPosition - worldPosition.xyz); //This is for do the dot product in frag shader
+
     
     vec4 projectorCoords = projectionMatrix * viewMatrix * worldPosition;
     gl_Position = mvp * vec4(vertexPosition,1.0);

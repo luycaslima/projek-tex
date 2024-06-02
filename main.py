@@ -6,7 +6,7 @@ from numpy import  deg2rad
 screen_width = 800
 screen_height = 600
 
-init_window(screen_width, screen_height, "pyray [shaders] example - projection texturing")
+init_window(screen_width, screen_height, "ProjekTEX")
 set_config_flags(ConfigFlags.FLAG_VSYNC_HINT)
 set_target_fps(60)
 disable_cursor()
@@ -33,7 +33,9 @@ for i in range(model.materialCount):
 # Get the location of the shader uniforms
 model_loc = get_shader_location(model.materials[0].shader, "modelMatrix")
 view_loc = get_shader_location(model.materials[0].shader, "viewMatrix")
+
 projector_pos_loc = get_shader_location(model.materials[0].shader, "projPosition")
+
 projection_loc = get_shader_location(model.materials[0].shader, "projectionMatrix")
 proj_texture_loc = get_shader_location(model.materials[0].shader, "projTexture")
 
@@ -45,14 +47,13 @@ for i in range(model.materialCount):
     #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_PROJECTION] = get_shader_location(model.materials[0].shader, "projectionMatrix")
     #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_VIEW] = get_shader_location(model.materials[0].shader, "viewMatrix")
     #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_MODEL] = get_shader_location(model.materials[0].shader, "modelMatrix")
-
     model.materials[i].maps[MaterialMapIndex.MATERIAL_MAP_ALBEDO].texture = texture # Set model diffuse texture (IMPORTANT FOR THE SHADER)
 
 #set_shader_value_texture(shader,proj_texture_loc,texture)
 
 #projector 
 proj_position = [2.0,3.0,2]
-#TODO how this works?
+#TODO how can i buffer data to the c framework
 # proj_pos_array = (ctypes.c_float * len(proj_position))(*proj_position)
 # # Convert the ctypes array to a pointer
 # proj_position_ptr = ctypes.pointer(proj_pos_array)
@@ -62,10 +63,14 @@ proj_target = [0.0,1.0,0.0]
 up_vector = [0.0,1.0,0.0]
 
 proj_view = matrix_look_at(proj_position,proj_target,up_vector)
-proj_projection = matrix_perspective(deg2rad(10),256.0/256.0,0.1,100.0) #TODO should it be the size of the image? #the fovy define how big
+#TODO should it be the size of the image? #the fovy define how big
+proj_projection = matrix_perspective(deg2rad(10),256.0/256.0,0.1,100.0) 
 
-# Main game loop
-while not window_should_close():  # Detect window close button or ESC key
+#TODO use depth mask?
+rl_enable_depth_test()
+
+# Detect window close button or ESC key
+while not window_should_close(): 
     # Update camera
     update_camera(camera, CameraMode.CAMERA_FREE)
 
@@ -96,4 +101,4 @@ while not window_should_close():  # Detect window close button or ESC key
 unload_shader(shader)  # Unload shader
 unload_texture(texture)  # Unload texture
 unload_model(model)
-close_window()  # Close window and OpenGL context
+close_window()  # Close window

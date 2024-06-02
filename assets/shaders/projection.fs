@@ -10,25 +10,26 @@ in vec3 projDirection;
 
 uniform sampler2D projTexture;
 
-
-
-
 void main(){ 
-    vec4 texColor = texture(projTexture,fragTexCoord);
-    finalColor = texColor; 
+    //vec4 texColor = texture(projTexture,fragTexCoord);
+    //finalColor = texColor; 
+
+    // Check if the projected coordinates are within the texture bounds
+        if (fragTexCoord.x >= 0.0 && fragTexCoord.x <= 1.0 && fragTexCoord.y >= 0.0 && fragTexCoord.y <= 1.0)
+        {
+            vec4 texColor = texture(projTexture,fragTexCoord);
+            finalColor = texColor; 
+
+        }
+        else
+        {
+            // If outside the bounds, discard the fragment or set a default color
+            finalColor = vec4(0,0,0,1.0);  // Or use fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+    
 
     // float dotProduct = -dot(fragNormal, projDirection);
-    
     // if(dotProduct < 0.0){
     //     finalColor = vec4(0,0,0,1.0);
     // }
-
-    /*
-        // this makes sure we don't render the texture also on the back of the object
-        vec3 projectorDirection = normalize(projPosition - vWorldPosition.xyz); //world position is just model * vertexPos
-        float dotProduct = dot(vNormal, projectorDirection);
-        if (dotProduct < 0.0) {
-        outColor = vec4(color, 1.0);
-        }
-    */
 }
