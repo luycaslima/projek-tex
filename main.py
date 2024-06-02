@@ -1,102 +1,103 @@
-# import eyejktor as ejk
-
-
-# def main():
-#     p = ejk.Program()
-#     p.start()
-#     p.loop()
-#     p.close_and_cleanup()
-
-
-# if __name__ == "__main__":
-#     main()
-
-
-
 from pyray import *
 from numpy import  deg2rad
 
-init_window(800, 600, "EYEJKTOR")
+# Initialization
+screen_width = 800
+screen_height = 600
+
+init_window(screen_width, screen_height, "pyray [shaders] example - projection texturing")
 set_config_flags(ConfigFlags.FLAG_VSYNC_HINT)
 set_target_fps(60)
 disable_cursor()
 
 
-camera = Camera3D([0,2,10],[0,0,0],[0,1,0],45.0,CameraProjection.CAMERA_PERSPECTIVE)
+#TODO - Save camera img in orthographic view
+    ## todo this paint a texture with everything that is being renderend and then convert to a image with np and pillow
+#TODO - get the uv calculations from the shader so we can make the new texture
+#TODO - apply the dot product so it cant project textures behind
 
 
-model = load_model("assets/models/model_test.glb")
-texture = load_texture("assets/textures/05.png")
-shader = load_shader(None,"assets/shaders/projection.fs")
+# Define the camera to look into our 3d world
+camera = Camera3D([4,4,4],[0,0,0],[0,1,0],45.0,CameraProjection.CAMERA_PERSPECTIVE)
 
-#model_loc = get_shader_location(shader, "matModel")
+# Load texture and shader
+texture = load_texture("assets/textures/icon_ferrucio.png")
+model = load_model("assets/models/jester_cat.glb")
+shader = load_shader("assets/shaders/projection.vs", "assets/shaders/projection.fs")
 
-texture_loc = get_shader_location(shader,"texture0")
-
-#shader.locs[ShaderLocationIndex.SHADER_LOC_VERTEX_TEXCOORD01] = texture_loc
-#set_shader_value(shader,texture_loc,bytes(0),ShaderUniformDataType.SHADER_UNIFORM_INT)
-set_shader_value_texture(shader,texture_loc,texture)
-
-#projector 
-proj_position = [4.0,4.0,4.0]
-proj_target = [0.0,0.0,0.0]
-up_vector = [0.0,1.0,0.0]
-
-proj_view = matrix_look_at(proj_position,proj_target,up_vector)
-proj_projection = matrix_perspective(deg2rad(camera.fovy), 800.0/600.0,0.1,100.0)
-
-model_loc = get_shader_location(shader,"modelMatrix")
-projector_view_loc = get_shader_location(shader,"viewMatrix") 
-projector_proj_loc = get_shader_location(shader,"projectionMatrix") 
-
-shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_MODEL] = model_loc
-shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_VIEW] = projector_view_loc
-shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_PROJECTION] = projector_proj_loc
-#shader.locs[ShaderLocationIndex.SHADER_LOC_VERTEX_TEXCOORD02] = texture_loc
-
-
-#texture_matrix_projection = matrix_multiply(proj_projection,proj_view)
-#texture_matrix_loc = get_shader_location(shader,"textureMatrix")
 
 for i in range(model.materialCount):
     model.materials[i].shader = shader
 
-mat_model = matrix_identity()
+# Get the location of the shader uniforms
+model_loc = get_shader_location(model.materials[0].shader, "modelMatrix")
+view_loc = get_shader_location(model.materials[0].shader, "viewMatrix")
+projector_pos_loc = get_shader_location(model.materials[0].shader, "projPosition")
+projection_loc = get_shader_location(model.materials[0].shader, "projectionMatrix")
+proj_texture_loc = get_shader_location(model.materials[0].shader, "projTexture")
 
-while not window_should_close():
-    update_camera(camera,CameraMode.CAMERA_FREE)
+# Set the texture to the shader
+#set_shader_value(shader,proj_texture_loc,bytes(1),ShaderUniformDataType.SHADER_UNIFORM_INT)
+#shader.locs[ShaderLocationIndex.SHADER_LOC_VERTEX_TEXCOORD01] = proj_texture_loc
+for i in range(model.materialCount):
+    #Need this to use custom values on the shader
+    model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MAP_ALBEDO] = get_shader_location(model.materials[0].shader, "projTexture")
+    #TODO TO PROJECTO FROM THE CAMERA OF THE USER, NEED TO SETUP THIS
+    #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_PROJECTION] = get_shader_location(model.materials[0].shader, "projectionMatrix")
+    #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_VIEW] = get_shader_location(model.materials[0].shader, "viewMatrix")
+    #model.materials[i].shader.locs[ShaderLocationIndex.SHADER_LOC_MATRIX_MODEL] = get_shader_location(model.materials[0].shader, "modelMatrix")
 
-    #set_shader_value_matrix(shader, model_loc, mat_model)
+    model.materials[i].maps[MaterialMapIndex.MATERIAL_MAP_ALBEDO].texture = texture # Set model diffuse texture (IMPORTANT FOR THE SHADER)
 
-    #set_shader_value_matrix(shader, view_loc, mat_view)
-    #set_shader_value_matrix(shader, projection_loc, mat_projection)
-    proj_projection = matrix_perspective(deg2rad(camera.fovy), 800.0/600.0,0.1,100.0)
 
-    #set_shader_value_matrix(shader,projector_view_loc,proj_view)
-    #set_shader_value_matrix(shader,projector_proj_loc,proj_projection)
+# for i in range(model.materialCount):
+#     model.materials[i].shader = shader
 
-    #set_shader_value_matrix(shader,texture_matrix_loc,texture_matrix_projection)
-    
+#set_shader_value_texture(shader,proj_texture_loc,texture)
+
+#projector 
+proj_position = [2.0,3.0,2]
+proj_target = [0.0,1.0,0.0]
+up_vector = [0.0,1.0,0.0]
+
+proj_view = matrix_look_at(proj_position,proj_target,up_vector)
+proj_projection = matrix_perspective(deg2rad(10),256.0/256.0,0.1,100.0) #TODO should it be the size of the image? #the fovy define how big
+
+
+# Main game loop
+while not window_should_close():  # Detect window close button or ESC key
+    # Update camera
+    update_camera(camera, CameraMode.CAMERA_FREE)
+
+    # Draw
     begin_drawing()
-    clear_background(WHITE)
+    clear_background(RAYWHITE)
 
     begin_mode_3d(camera)
-    begin_shader_mode(shader)
-   
+    
 
-    set_shader_value_matrix(shader,model_loc,matrix_identity())
-    set_shader_value_matrix(shader,projector_view_loc,get_camera_matrix(camera))
-    set_shader_value_matrix(shader,projector_proj_loc,proj_projection)
+    #set_shader_value_v(model.materials[0].shader,projector_pos_loc,proj_projection,ShaderUniformDataType.SHADER_UNIFORM_VEC3,0)
+    set_shader_value_matrix(model.materials[0].shader, model_loc, matrix_identity())
+    set_shader_value_matrix(model.materials[0].shader, view_loc, proj_view)
+    set_shader_value_matrix(model.materials[0].shader, projection_loc, proj_projection)
+    
+    # Draw objects with the shader
+    # Use shader
+    #[begin_shader_mode(shader)
+    draw_cube_wires(proj_position,.2,.2,.2,RED)
+    draw_model(model,[0,1,0],1,WHITE)
+    #end_shader_mode()
+    #draw_cube_wires(Vector3(0.0, 1.0, 0.0), 2.0, 2.0, 2.0, BLACK)
+    draw_grid(10, 1.0)
 
-    draw_model(model,[0,0,0],1.0,WHITE)
-    draw_grid(20,1)
-
-
-    end_shader_mode()
     end_mode_3d()
+    #draw_texture(texture,400,300,(255,255,255,125))
+    #draw_text("Move with keys: W, A, S, D", 10, 40, 20, DARKGRAY)
+
     end_drawing()
 
-unload_shader(shader)
-unload_texture(texture)
+# Unload resources
+unload_shader(shader)  # Unload shader
+unload_texture(texture)  # Unload texture
 unload_model(model)
-close_window()
+close_window()  # Close window and OpenGL context
