@@ -12,12 +12,6 @@ set_target_fps(60)
 disable_cursor()
 
 
-#TODO - Save camera img in orthographic view
-    ## todo this paint a texture with everything that is being renderend and then convert to a image with np and pillow
-#TODO - get the uv calculations from the shader so we can make the new texture
-#TODO - apply the dot product so it cant project textures behind
-#TODO make texture not repeat itself
-    
 # Define the camera to look into our 3d world
 camera = Camera3D([4,4,4],[0,0,0],[0,1,0],45.0,CameraProjection.CAMERA_PERSPECTIVE)
 
@@ -51,13 +45,12 @@ for i in range(model.materialCount):
 
 #set_shader_value_texture(shader,proj_texture_loc,texture)
 
-#projector 
+#projector  (can be also a 3D camera)
 proj_position = [2.0,3.0,2]
 #TODO how can i buffer data to the c framework
 # proj_pos_array = (ctypes.c_float * len(proj_position))(*proj_position)
 # # Convert the ctypes array to a pointer
 # proj_position_ptr = ctypes.pointer(proj_pos_array)
-
 
 proj_target = [0.0,1.0,0.0]
 up_vector = [0.0,1.0,0.0]
@@ -66,8 +59,8 @@ proj_view = matrix_look_at(proj_position,proj_target,up_vector)
 #TODO should it be the size of the image? #the fovy define how big
 proj_projection = matrix_perspective(deg2rad(10),256.0/256.0,0.1,100.0) 
 
-#TODO use depth mask?
-rl_enable_depth_test()
+#TODO use depth mask for checking where the texture should render?
+#rl_enable_depth_test()
 
 # Detect window close button or ESC key
 while not window_should_close(): 
@@ -93,7 +86,6 @@ while not window_should_close():
 
     end_mode_3d()
     #draw_texture(texture,400,300,(255,255,255,125))
-    #draw_text("Move with keys: W, A, S, D", 10, 40, 20, DARKGRAY)
 
     end_drawing()
 
